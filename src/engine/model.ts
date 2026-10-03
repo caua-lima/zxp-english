@@ -194,7 +194,7 @@ export type UnitProgress = z.infer<typeof unitProgressSchema>;
 
 // ---------- XP, tarefas, conquistas ----------
 
-export const XP_KINDS = ["lesson", "checkpoint", "activity", "mission", "review", "task", "placement", "outside"] as const;
+export const XP_KINDS = ["practice", "lesson", "checkpoint", "activity", "mission", "review", "task", "placement", "outside"] as const;
 export type XpKind = (typeof XP_KINDS)[number];
 
 export const xpEntrySchema = z.strictObject({

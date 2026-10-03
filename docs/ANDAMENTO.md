@@ -9,9 +9,9 @@
 | # | Etapa | Estado |
 |---|-------|--------|
 | 1 | Inspeção do repositório e plano | ✅ concluída |
-| 2 | Modelo de conteúdo e mapa curricular | ⏳ em andamento |
-| 3 | Fluxo completo com uma unidade de referência (A1·U1) | ⬜ pendente |
-| 4 | Persistência, revisão espaçada e progressão | ⬜ pendente |
+| 2 | Modelo de conteúdo e mapa curricular | ✅ concluída |
+| 3 | Fluxo completo com uma unidade de referência (A1·U1) | ⏳ conteúdo ✅ · interface ⬜ |
+| 4 | Persistência, revisão espaçada e progressão | ⏳ motor e persistência ✅ (116 testes) · telas ⬜ |
 | 5 | Produção e revisão das 32 unidades | ⬜ pendente |
 | 6 | Refinamento visual e acessibilidade | ⬜ pendente |
 | 7 | Testes, correções e documentação de deploy | ⬜ pendente |
