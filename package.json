@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "content:audit": "tsx scripts/audit-content.ts",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run content:audit && npm run build"
   },
   "dependencies": {
     "lucide-react": "^1.51.0",
