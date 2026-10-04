@@ -102,6 +102,20 @@ describe("apóstrofo essencial", () => {
   });
 });
 
+describe("erro previsto tem precedência sobre a expansão de contrações", () => {
+  const ex = typeEx("e1", "Resposta curta afirmativa", ["Yes, I am"], "Sem contração na resposta curta.", { t: [["Yes, I'm", "Na resposta curta afirmativa não se contrai."]] });
+  it("aceita a forma certa e rejeita a contraída, com a explicação específica", () => {
+    expect(gradeResponse(ex, { kind: "type", text: "Yes, I am." }).correct).toBe(true);
+    const r = gradeResponse(ex, { kind: "type", text: "yes, I'm" });
+    expect(r.correct).toBe(false);
+    expect(r.feedback).toContain("não se contrai");
+  });
+  it("não atrapalha quando a forma contraída também está entre as aceitas", () => {
+    const both = typeEx("e2", "x", ["I'm fine", "I am fine"], "Explicação qualquer aqui.", { t: [["I'm fine", "nunca usado"]] });
+    expect(gradeResponse(both, { kind: "type", text: "I'm fine" }).correct).toBe(true);
+  });
+});
+
 describe("mcq", () => {
   const ex = mc("e1", "Qual está certa?", ["He go", "He goes", "He going"], 1, "Com he/she/it: -s.", {
     why: ["Falta o -s.", undefined, "going precisa de is."],

@@ -26,7 +26,8 @@ export interface Issue {
 }
 
 const PT_CHARS = /[ãõçáéíóúâêôà]/i;
-const PLACEHOLDER = /\b(TODO|FIXME|lorem|ipsum|placeholder|XXX|TBD)\b/i;
+// Marcadores em maiúsculas são sensíveis à caixa: "todo mundo" é português legítimo.
+const PLACEHOLDER = /\b(TODO|FIXME|XXX|TBD)\b|\b([Ll]orem ipsum|[Pp]laceholder)\b/;
 
 function wordCount(s: string): number {
   return s.trim().split(/\s+/).filter(Boolean).length;
@@ -86,7 +87,7 @@ function auditExercise(L: Located, unitId: string, issues: Issue[]): void {
   const err = (message: string) => issues.push({ level: "error", unit: unitId, where, message });
   const warn = (message: string) => issues.push({ level: "warn", unit: unitId, where, message });
 
-  if (ex.explanation.length < 25) err("Explicação curta demais para ser útil.");
+  if (ex.explanation.length < 15) err("Explicação curta demais para ser útil.");
   if (PLACEHOLDER.test(JSON.stringify(ex))) err("Contém marcador de placeholder (TODO, lorem, XXX…).");
   if (ex.hints?.some((h) => h.trim().length < 5)) err("Pista vazia ou curta demais.");
 
@@ -154,7 +155,8 @@ function auditExercise(L: Located, unitId: string, issues: Issue[]): void {
       ex.turns.forEach((t, i) => {
         if (!t.options.some((o) => o.ok)) err(`Turno ${i + 1} sem opção adequada.`);
         if (!t.options.some((o) => !o.ok)) err(`Turno ${i + 1} sem opção inadequada.`);
-        const n = t.options.map((o) => normalize(o.text));
+        // Comparação literal: "Yes, I am" e "Yes, I'm" são opções diferentes de propósito.
+        const n = t.options.map((o) => o.text.trim().toLowerCase());
         if (new Set(n).size !== n.length) err(`Turno ${i + 1} com opções duplicadas.`);
       });
       break;

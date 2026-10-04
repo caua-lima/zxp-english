@@ -12,6 +12,9 @@ type Loader = () => Promise<{ default: UnitContent }>;
 /** IDs com conteúdo escrito. O teste `curriculum completeness` exige as 32. */
 export const LOADERS: Record<string, Loader> = {
   "a1-u01": () => import("./units/a1-u01"),
+  "a1-u02": () => import("./units/a1-u02"),
+  "a1-u03": () => import("./units/a1-u03"),
+  "a1-u04": () => import("./units/a1-u04"),
 };
 
 const cache = new Map<string, Promise<UnitContent>>();

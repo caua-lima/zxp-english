@@ -114,6 +114,14 @@ export function normalize(input: string): string {
     .join(" ");
 }
 
+/** Forma "como digitada": sem caixa nem pontuação, mas SEM expandir contrações. */
+function plainKey(input: string): string {
+  return baseClean(input)
+    .replace(/[.,!?;:"()\[\]{}…-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /** Chave sem apóstrofos, para detectar "dont" / "its" digitados sem apóstrofo. */
 function looseKey(input: string): string {
   return baseClean(input)
@@ -236,11 +244,16 @@ function judgeText(
   const user = normalize(userRaw);
   const normAccepted = accepted.map((a) => ({ raw: a, norm: normalize(a) }));
 
-  const exact = normAccepted.find((a) => a.norm === user);
-  if (exact && user.length > 0) return { outcome: "correct", closest: exact.raw };
+  // Erro previsto pelo autor → explicação específica. Tem precedência quando a forma
+  // digitada coincide com ele sem expandir contrações: "Yes, I'm" é um erro mesmo que
+  // "Yes, I am" seja aceito, e a expansão de contrações não pode apagar essa diferença.
+  const plain = plainKey(userRaw);
+  const literalTrap = opts.traps?.find((t) => plainKey(t.answer) === plain && !accepted.some((a) => plainKey(a) === plain));
 
-  // Erro previsto pelo autor → explicação específica.
-  const trap = opts.traps?.find((t) => normalize(t.answer) === user);
+  const exact = normAccepted.find((a) => a.norm === user);
+  if (exact && user.length > 0 && !literalTrap) return { outcome: "correct", closest: exact.raw };
+
+  const trap = literalTrap ?? opts.traps?.find((t) => normalize(t.answer) === user);
 
   // Escolhe a resposta aceita mais próxima, para marcar diferenças.
   const userToks = tokenize(user);
