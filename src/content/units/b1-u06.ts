@@ -8,7 +8,7 @@ export default defineUnit({
 
   concepts: [
     concept("second-cond", "pattern", "If I had …, I would …", "Se eu tivesse …, eu …ria", "l1", ["If I had more time, I would learn to cook.", "Se eu tivesse mais tempo, aprenderia a cozinhar."], { note: "If + passado simples, would + verbo base. Fala de algo imaginário agora." }),
-    concept("would-base", "pattern", "would / wouldn't + verbo base", "…ria / não …ria", "l1", ["I'd buy a house near the beach.", "Eu compraria uma casa perto da praia."], { note: "I'd = I would. Nunca would depois de if." }),
+    concept("would-base", "pattern", "would / wouldn't + base verb", "…ria / não …ria", "l1", ["I'd buy a house near the beach.", "Eu compraria uma casa perto da praia."], { note: "I'd = I would. Nunca would depois de if." }),
     concept("if-i-were", "phrase", "If I were you, I would …", "Se eu fosse você, eu …", "l2", ["If I were you, I'd talk to her.", "Se eu fosse você, eu falaria com ela."], { note: "Com if, usa-se were para todas as pessoas.", tags: ["chunk"] }),
     concept("what-would-you-do", "phrase", "What would you do if …?", "O que você faria se …?", "l2", ["What would you do if you lost your passport?", "O que você faria se perdesse o passaporte?"]),
     concept("wish-past", "pattern", "I wish I had … / I wish I were …", "Queria ter … / Queria ser …", "l3", ["I wish I had a bigger apartment.", "Queria ter um apartamento maior."], { note: "wish + passado simples: desejo sobre o presente." }),
