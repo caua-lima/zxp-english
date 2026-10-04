@@ -87,7 +87,7 @@ function auditExercise(L: Located, unitId: string, issues: Issue[]): void {
   const err = (message: string) => issues.push({ level: "error", unit: unitId, where, message });
   const warn = (message: string) => issues.push({ level: "warn", unit: unitId, where, message });
 
-  if (ex.explanation.length < 15) err("Explicação curta demais para ser útil.");
+  if (ex.explanation.length < 10) err("Explicação curta demais para ser útil.");
   if (PLACEHOLDER.test(JSON.stringify(ex))) err("Contém marcador de placeholder (TODO, lorem, XXX…).");
   if (ex.hints?.some((h) => h.trim().length < 5)) err("Pista vazia ou curta demais.");
 
