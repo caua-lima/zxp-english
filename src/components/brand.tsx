@@ -1,13 +1,31 @@
 /**
- * Marca do ZXP ENGLISH: o "Z-faísca" e o mascote Zip.
- * Desenhos originais em SVG; não reutilizam elementos de outras marcas.
+ * Marca do ZXP English, da família ZXP Solutions.
+ *
+ * O "Z" é o símbolo compartilhado pelos apps ZXP: traço (stroke), nunca
+ * preenchimento, com a geometria exata da marca (pontos 30,47 170,47 30,153 170,153,
+ * espessura 34, junção em esquadria, ponta reta) sobre ônix. O que muda de app para
+ * app é a cor de assinatura; no English, o violeta elétrico. Estas cores são da logo
+ * e por isso não mudam com o tema do app. O mascote Zip é um desenho original.
  */
+export const BRAND = { onyx: "#10100E", violet: "#9B8CFF", ivory: "#F6F3E8" } as const;
 
+const Z_POINTS = "30,47 170,47 30,153 170,153";
+
+/** Só o "Z" de traço, sem contêiner. */
+export function MarkZ({ size = 36, color = BRAND.violet }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <polyline points={Z_POINTS} fill="none" stroke={color} strokeWidth="34" strokeLinejoin="miter" strokeLinecap="butt" />
+    </svg>
+  );
+}
+
+/** O "Z" dentro do contêiner ônix arredondado: a forma do ícone do app. */
 export function Mark({ size = 36 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-      <rect x="2" y="2" width="44" height="44" rx="13" fill="var(--primary)" stroke="var(--line-strong)" strokeWidth="2.5" />
-      <path d="M13 13h22l-13 10h11L15 36l5-10h-9z" fill="var(--accent)" stroke="var(--line-strong)" strokeWidth="2.2" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <rect width="200" height="200" rx="44" fill={BRAND.onyx} />
+      <polyline points={Z_POINTS} fill="none" stroke={BRAND.violet} strokeWidth="34" strokeLinejoin="miter" strokeLinecap="butt" />
     </svg>
   );
 }
@@ -18,11 +36,11 @@ export function Logo({ size = 36, compact = false }: { size?: number; compact?: 
       <Mark size={size} />
       {!compact ? (
         <span className="font-display leading-none">
-          <span className="block text-[1.15rem] font-extrabold tracking-tight">ZXP</span>
-          <span className="block text-[0.62rem] font-bold tracking-[0.28em] text-ink-2">ENGLISH</span>
+          <span className="block text-[1.25rem] font-extrabold tracking-tight text-primary-text">ZXP</span>
+          <span className="block text-[0.62rem] font-medium tracking-[0.3em] text-ink">ENGLISH</span>
         </span>
       ) : null}
-      <span className="sr-only">ZXP ENGLISH</span>
+      <span className="sr-only">ZXP English</span>
     </span>
   );
 }
