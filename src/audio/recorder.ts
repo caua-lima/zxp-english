@@ -9,7 +9,7 @@
  * - Se o navegador não suporta ou a permissão é negada, a tarefa continua
  *   possível sem gravação.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 export type RecorderStatus = "idle" | "requesting" | "recording" | "recorded" | "denied" | "unsupported" | "error";
 
@@ -33,10 +33,13 @@ export function recorderSupported(): boolean {
 }
 
 const MAX_SECONDS = 90;
+const noopSubscribe = () => () => undefined;
 
 export function useRecorder(): Recorder {
-  const [status, setStatus] = useState<RecorderStatus>("idle");
-  const [supported, setSupported] = useState(false);
+  const [rawStatus, setStatus] = useState<RecorderStatus>("idle");
+  // Detecção de recurso do navegador: falso no servidor, valor real depois da hidratação.
+  const supported = useSyncExternalStore(noopSubscribe, recorderSupported, () => false);
+  const status: RecorderStatus = supported ? rawStatus : "unsupported";
   const [url, setUrl] = useState<string | null>(null);
   const [seconds, setSeconds] = useState(0);
   const rec = useRef<MediaRecorder | null>(null);
@@ -44,12 +47,6 @@ export function useRecorder(): Recorder {
   const chunks = useRef<Blob[]>([]);
   const timer = useRef<number | null>(null);
   const urlRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const ok = recorderSupported();
-    setSupported(ok);
-    if (!ok) setStatus("unsupported");
-  }, []);
 
   const release = useCallback(() => {
     if (timer.current !== null) window.clearInterval(timer.current);

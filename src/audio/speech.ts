@@ -9,7 +9,7 @@
  *    escuta viram "atividade adaptada" e não contam como evidência de compreensão oral.
  *  - Nada é enviado a servidores por este código.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 export interface SpeechInfo {
   /** A API existe neste navegador. */
@@ -48,43 +48,60 @@ export function pickVoice(voices: SpeechSynthesisVoice[], preferredURI?: string)
   return pool.find((v) => v.default) ?? pool[0];
 }
 
-export function useSpeechInfo(preferredURI?: string): SpeechInfo {
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [ready, setReady] = useState(false);
-  const [supported, setSupported] = useState(false);
+// ---- Lista de vozes como "store" externo: as vozes carregam de forma assíncrona. ----
+const NO_VOICES: SpeechSynthesisVoice[] = [];
+let voicesCache: SpeechSynthesisVoice[] = NO_VOICES;
+let voicesSettled = false;
+let watching = false;
+const voiceListeners = new Set<() => void>();
+const emitVoices = () => voiceListeners.forEach((l) => l());
 
-  useEffect(() => {
-    const s = synth();
-    setSupported(Boolean(s));
-    if (!s) {
-      setReady(true);
-      return;
+function watchVoices(): void {
+  if (watching) return;
+  watching = true;
+  const s = synth();
+  if (!s) {
+    voicesSettled = true;
+    return;
+  }
+  const load = () => {
+    const list = s.getVoices();
+    if (list.length) {
+      voicesCache = list;
+      voicesSettled = true;
+      emitVoices();
     }
-    const load = () => {
-      const list = s.getVoices();
-      if (list.length) {
-        setVoices(list);
-        setReady(true);
-      }
-    };
-    load();
-    s.addEventListener?.("voiceschanged", load);
-    // Alguns navegadores nunca disparam o evento; depois de um tempo, seguimos com o que houver.
-    const t = window.setTimeout(() => setReady(true), 1500);
-    return () => {
-      s.removeEventListener?.("voiceschanged", load);
-      window.clearTimeout(t);
-    };
-  }, []);
+  };
+  load();
+  s.addEventListener?.("voiceschanged", load);
+  // Alguns navegadores nunca disparam o evento; depois de um tempo, seguimos com o que houver.
+  window.setTimeout(() => {
+    if (!voicesSettled) {
+      voicesSettled = true;
+      emitVoices();
+    }
+  }, 1500);
+}
 
-  const voice = pickVoice(voices, preferredURI);
+function subscribeVoices(listener: () => void): () => void {
+  watchVoices();
+  voiceListeners.add(listener);
+  return () => voiceListeners.delete(listener);
+}
+
+export function useSpeechInfo(preferredURI?: string): SpeechInfo {
+  const all = useSyncExternalStore(subscribeVoices, () => voicesCache, () => NO_VOICES);
+  const settled = useSyncExternalStore(subscribeVoices, () => voicesSettled, () => false);
+  const supported = useSyncExternalStore(subscribeVoices, () => synth() !== null, () => false);
+
+  const voice = pickVoice(all, preferredURI);
   // Lista vazia: o sistema ainda pode falar inglês com a voz padrão (comum no Android).
-  const available = supported && (voice !== null || voices.length === 0);
+  const available = supported && (voice !== null || all.length === 0);
   return {
     supported,
     available,
-    ready,
-    voices: voices.filter((v) => /^en([-_]|$)/i.test(v.lang)),
+    ready: settled,
+    voices: all.filter((v) => /^en([-_]|$)/i.test(v.lang)),
     voice,
     voiceLabel: voice ? `${voice.name} (${voice.lang})` : supported ? "Voz padrão do sistema" : "Indisponível",
   };
