@@ -42,6 +42,7 @@ export const LOADERS: Record<string, Loader> = {
   "b2-u05": () => import("./units/b2-u05"),
   "b2-u06": () => import("./units/b2-u06"),
   "b2-u07": () => import("./units/b2-u07"),
+  "b2-u08": () => import("./units/b2-u08"),
 };
 
 const cache = new Map<string, Promise<UnitContent>>();
