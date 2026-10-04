@@ -45,7 +45,8 @@ function signature(ex: Exercise): string {
     case "mcq":
       return `${ex.prompt} ${ex.options.map((o) => o.text).join(" ")}`;
     case "listen":
-      return `${ex.say.join(" ")} ${ex.options.map((o) => o.text).join(" ")}`;
+      // O mesmo áudio pode sustentar perguntas diferentes; o que não pode repetir é a pergunta.
+      return `${ex.prompt} ${ex.options.map((o) => o.text).join(" ")}`;
     case "cloze":
       return ex.text + " " + ex.accepted[0];
     case "order":
