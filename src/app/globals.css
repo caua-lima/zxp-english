@@ -1,19 +1,26 @@
 @import "tailwindcss";
 
 /*
- * ZXP ENGLISH — identidade visual
- * Papel quente + tinta azul-noite + violeta elétrico + amarelo "faísca".
+ * ZXP ENGLISH — identidade visual (família ZXP Solutions)
+ *
+ * DNA comum aos apps ZXP: ônix #10100E de fundo, marfim #F6F3E8 de texto, Sora nos
+ * títulos e o "Z" de traço. O que separa cada app é UMA cor de assinatura:
+ * dourado = Market, magenta = Mark, esmeralda = Finance, azul = Tasks e
+ * VIOLETA ELÉTRICO = English. O dourado não reaparece aqui; o destaque quente
+ * (XP, sequência) é coral, longe do dourado.
+ *
+ * Tema escuro (ônix) é o padrão da marca; o claro usa marfim.
  * Os pares texto/fundo são verificados em tests/unit/contrast.test.ts (WCAG AA).
  */
 :root {
-  --bg: #faf6ef;
-  --surface: #ffffff;
-  --surface-2: #f3eee4;
-  --ink: #1a1b2e;
-  --ink-2: #4a4d68;
-  --ink-3: #62657f;
-  --line: #ddd5c4;
-  --line-strong: #1a1b2e;
+  --bg: #f6f3e8;
+  --surface: #fffdf6;
+  --surface-2: #ece8d9;
+  --ink: #10100e;
+  --ink-2: #4a4638;
+  --ink-3: #625e50;
+  --line: #d9d3bf;
+  --line-strong: #10100e;
 
   --primary: #5b3df5;
   --primary-strong: #4326d6;
@@ -21,9 +28,9 @@
   --primary-soft: #ece8ff;
   --primary-text: #4326d6;
 
-  --accent: #ffc21a;
-  --accent-ink: #3a2a00;
-  --accent-soft: #fff3cc;
+  --accent: #ff8a4c;
+  --accent-ink: #2b1100;
+  --accent-soft: #ffe3d1;
 
   --ok: #0e7c4a;
   --ok-soft: #ddf5e7;
@@ -39,31 +46,31 @@
   --stage-b1: #7b3fc4;
   --stage-b2: #b8257f;
 
-  --focus: #1a1b2e;
-  --shadow: 0 1px 0 rgba(26, 27, 46, 0.04), 0 8px 24px -12px rgba(26, 27, 46, 0.18);
+  --focus: #10100e;
+  --shadow: 0 1px 0 rgba(16, 16, 14, 0.04), 0 8px 24px -12px rgba(16, 16, 14, 0.22);
   --ledge: 0 3px 0 0 var(--line-strong);
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --bg: #12131f;
-  --surface: #1c1e30;
-  --surface-2: #262a40;
-  --ink: #f3f1ea;
-  --ink-2: #c6c8dc;
-  --ink-3: #a3a6bf;
-  --line: #363a56;
-  --line-strong: #05060d;
+  --bg: #10100e;
+  --surface: #1a1916;
+  --surface-2: #242320;
+  --ink: #f6f3e8;
+  --ink-2: #cfcbbd;
+  --ink-3: #a9a598;
+  --line: #2e2e2a;
+  --line-strong: #000000;
 
-  --primary: #8e7bff;
-  --primary-strong: #a99aff;
-  --primary-ink: #12131f;
-  --primary-soft: #2a2456;
-  --primary-text: #b3a6ff;
+  --primary: #9b8cff;
+  --primary-strong: #8c7bfa;
+  --primary-ink: #10100e;
+  --primary-soft: #2b2650;
+  --primary-text: #b8acff;
 
-  --accent: #ffc21a;
-  --accent-ink: #2a1e00;
-  --accent-soft: #3d3110;
+  --accent: #ff9466;
+  --accent-ink: #10100e;
+  --accent-soft: #3a2418;
 
   --ok: #5fe0a4;
   --ok-soft: #12362a;
@@ -79,7 +86,7 @@
   --stage-b1: #c39bff;
   --stage-b2: #ff8fd0;
 
-  --focus: #ffc21a;
+  --focus: #c9beff;
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 10px 28px -14px rgba(0, 0, 0, 0.7);
   color-scheme: dark;
 }

@@ -33,7 +33,7 @@ export function defaultSettings(minutes: 10 | 20 | 30 = 20, timezone = browserTi
     showTranslations: true,
     speechRate: 0.65,
     reducedMotion: "system",
-    theme: "system",
+    theme: "dark",
   };
 }
 
