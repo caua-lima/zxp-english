@@ -128,7 +128,7 @@ export function TrailScreen() {
               </div>
             </div>
             <p className="mb-3 text-sm text-ink-2">{info.blurb}</p>
-            <ol className="relative grid gap-3">
+            <ol className="relative grid grid-cols-[minmax(0,1fr)] gap-3">
               <span className="absolute bottom-6 left-[42px] top-6 w-1 rounded-full bg-line sm:left-1/2" aria-hidden="true" />
               {units.map((meta, i) => (
                 <UnitNode
@@ -145,7 +145,7 @@ export function TrailScreen() {
         );
       })}
       <p className="text-sm text-ink-3">
-        As etapas A1–B2 seguem os objetivos comunicativos do CEFR como referência editorial. O ZXP ENGLISH não emite certificado nem equivale a um exame oficial.
+        As etapas A1–B2 seguem os objetivos comunicativos do CEFR como referência editorial. O ZXP English não emite certificado nem equivale a um exame oficial.
       </p>
     </div>
   );
