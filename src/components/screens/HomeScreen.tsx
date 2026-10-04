@@ -78,7 +78,7 @@ export function HomeScreen() {
       <header className="mb-3 flex items-center gap-3">
         <Zip mood={plan.goalMet ? "cheer" : plan.reentry ? "rest" : "happy"} size={68} />
         <div className="min-w-0">
-          <h1 className="text-2xl font-extrabold sm:text-3xl">{started ? (plan.goalMet ? "Meta do dia cumprida" : "Vamos estudar?") : "Bem-vindo ao ZXP ENGLISH"}</h1>
+          <h1 className="text-2xl font-extrabold sm:text-3xl">{started ? (plan.goalMet ? "Meta do dia cumprida" : "Vamos estudar?") : "Bem-vindo ao ZXP English"}</h1>
           <p className="text-ink-2">
             {formatShort(today)} · {GOAL_LINE[state.profile.goal]}
           </p>

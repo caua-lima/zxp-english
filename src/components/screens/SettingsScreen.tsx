@@ -381,7 +381,7 @@ export function SettingsScreen() {
       </Card>
 
       <p className="mt-8 text-sm text-ink-3">
-        ZXP ENGLISH · uso pessoal · as etapas A1–B2 usam o CEFR como referência de objetivos, sem certificação nem validação oficial.
+        ZXP English · uso pessoal · as etapas A1–B2 usam o CEFR como referência de objetivos, sem certificação nem validação oficial.
       </p>
     </div>
   );

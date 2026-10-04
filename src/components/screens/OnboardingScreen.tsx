@@ -160,7 +160,7 @@ export function OnboardingScreen() {
             </div>
             <p className="text-ink-2">Em Ajustes você exporta um backup em arquivo e restaura em outro aparelho quando quiser.</p>
             <div className="card grid gap-2 p-4">
-              <p className="font-extrabold">Já usou o ZXP ENGLISH antes?</p>
+              <p className="font-extrabold">Já usou o ZXP English antes?</p>
               <p className="text-sm text-ink-2">Restaure um backup e continue de onde parou.</p>
               <ImportBackup />
             </div>

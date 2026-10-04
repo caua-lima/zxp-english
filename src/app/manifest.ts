@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ZXP ENGLISH",
+    name: "ZXP English",
     short_name: "ZXP English",
     description: "Aprenda inglês do zero ao B2 com trilha clara, explicações em português e revisão espaçada.",
     start_url: "/",
@@ -10,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     lang: "pt-BR",
-    background_color: "#faf6ef",
-    theme_color: "#5b3df5",
+    background_color: "#10100e",
+    theme_color: "#10100e",
     categories: ["education"],
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },

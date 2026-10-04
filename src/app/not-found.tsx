@@ -9,7 +9,7 @@ export default function NotFound() {
           <Zip mood="think" size={104} />
         </div>
         <h1 className="mt-3 text-3xl font-extrabold">Página não encontrada</h1>
-        <p className="mt-1 text-ink-2">Este endereço não existe no ZXP ENGLISH.</p>
+        <p className="mt-1 text-ink-2">Este endereço não existe no ZXP English.</p>
         <Link href="/" className="btn btn-primary mt-5">
           Ir para o início
         </Link>

@@ -164,7 +164,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Navegação lateral (telas grandes) */}
       <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-r-2 border-line bg-surface p-4 lg:flex">
-        <Link href="/" className="mb-4 inline-flex rounded-xl p-1" aria-label="ZXP ENGLISH — início">
+        <Link href="/" className="mb-4 inline-flex rounded-xl p-1" aria-label="ZXP English — início">
           <Logo />
         </Link>
         <nav aria-label="Principal" className="grid gap-1">
@@ -176,7 +176,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-w-0">
         <header className="sticky top-0 z-20 border-b-2 border-line bg-bg/95 backdrop-blur">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2.5">
-            <Link href="/" className="rounded-xl lg:hidden" aria-label="ZXP ENGLISH — início">
+            <Link href="/" className="rounded-xl lg:hidden" aria-label="ZXP English — início">
               <Logo size={34} />
             </Link>
             <span className="hidden lg:block" />
