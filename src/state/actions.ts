@@ -218,6 +218,20 @@ export function recordAttempt(state: ProgressState, input: RecordAttemptInput, n
   return { ...d.finish(), attempt };
 }
 
+/**
+ * Desagenda modos vencidos que não têm exercício disponível. Não apaga histórico:
+ * só remove a data de vencimento, para o item não ficar preso na fila.
+ */
+export function unscheduleModes(state: ProgressState, items: { conceptId: string; mode: Mode }[], now: Date): Change {
+  const d = new Draft(state, now);
+  for (const { conceptId, mode } of items) {
+    const c = d.s.concepts[conceptId];
+    if (!c || c[mode].due === null) continue;
+    d.putConcept({ ...c, [mode]: { ...c[mode], due: null } });
+  }
+  return d.finish();
+}
+
 // ---------------------------------------------------------------------- lições
 
 function emptyLesson(id: string, ts: string): LessonProgress {

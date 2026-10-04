@@ -147,6 +147,8 @@ export const sessionSnapshotSchema = z.strictObject({
       independent: z.boolean(),
       hints: z.number().int().min(0),
       revealed: z.boolean(),
+      /** Feita sem áudio (não conta como evidência de compreensão oral). */
+      adapted: z.boolean().optional(),
     }),
   ),
   /** Exercícios já reapresentados uma vez (evita laços infinitos). */

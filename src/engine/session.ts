@@ -13,6 +13,7 @@ export interface ResultSummary {
   independent: boolean;
   hints: number;
   revealed: boolean;
+  adapted?: boolean;
 }
 
 export interface SessionState {
@@ -77,6 +78,8 @@ export interface SessionStats {
   selfAssessed: number;
   hinted: number;
   revealed: number;
+  /** Respostas dadas sem áudio: certas ou não, não contam como acerto independente. */
+  adapted: number;
   failedIds: string[];
 }
 
@@ -92,6 +95,7 @@ export function sessionStats(s: SessionState): SessionStats {
     selfAssessed: all.length - graded.length,
     hinted: graded.filter(([, r]) => r.hints > 0).length,
     revealed: graded.filter(([, r]) => r.revealed).length,
+    adapted: graded.filter(([, r]) => r.adapted).length,
     failedIds: graded.filter(([, r]) => r.outcome === "incorrect" || r.revealed).map(([id]) => id),
   };
 }

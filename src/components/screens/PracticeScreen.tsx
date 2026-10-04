@@ -14,6 +14,7 @@ import { buildConceptIndex, buildReviewPicks, errorNotebook, pickExercise, units
 import { initSession, sessionStats, type SessionState } from "@/engine/session";
 import { buildReviewQueue, dueItems } from "@/engine/srs";
 import { reviewsDoneOn } from "@/engine/stats";
+import { unscheduleModes } from "@/state/actions";
 import { useProgress, useStore } from "@/state/provider";
 import { Zip } from "@/components/brand";
 import { FocusHeader, SessionRunner } from "@/components/session/SessionRunner";
@@ -21,12 +22,18 @@ import { LinkButton, Loading, Notice } from "@/components/ui";
 
 export type PracticeMode = "revisao" | "erros";
 
-type Plan = { status: "loading" } | { status: "empty"; reason: string } | { status: "ready"; exercises: Record<string, Exercise>; order: string[]; key: string } | { status: "error" };
+type Stuck = { conceptId: string; mode: "rec" | "prod" }[];
+type Plan =
+  | { status: "loading" }
+  | { status: "empty"; reason: string; stuck?: Stuck }
+  | { status: "ready"; exercises: Record<string, Exercise>; order: string[]; key: string; stuck?: Stuck }
+  | { status: "error" };
 
 async function buildPlan(state: ProgressState, mode: PracticeMode, concept: string | null, now: Date): Promise<Plan> {
   const tz = state.settings.timezone;
   const today = dateKey(now, tz);
   let picks: ReviewPick[] = [];
+  let stuck: Stuck = [];
 
   if (mode === "revisao") {
     const queue = buildReviewQueue(state.concepts, today, state.settings.reviewCap, reviewsDoneOn(state, today));
@@ -40,7 +47,9 @@ async function buildPlan(state: ProgressState, mode: PracticeMode, concept: stri
       };
     }
     const units = await loadUnits(unitsNeeded(queue.today).filter(isPublished));
-    picks = buildReviewPicks(queue.today, buildConceptIndex(units, state), state.attempts);
+    const plan = buildReviewPicks(queue.today, buildConceptIndex(units, state), state.attempts);
+    picks = plan.picks;
+    stuck = plan.stuck;
   } else {
     const entries = errorNotebook(state, (iso) => dateKey(iso, tz));
     const chosen = concept ? entries.filter((e) => e.conceptId === concept) : entries.filter((e) => e.status !== "resolved").slice(0, 6);
@@ -76,8 +85,8 @@ async function buildPlan(state: ProgressState, mode: PracticeMode, concept: stri
     exercises[p.exercise.id] = p.exercise;
     order.push(p.exercise.id);
   }
-  if (order.length === 0) return { status: "empty", reason: "Não encontrei exercícios disponíveis para estes itens." };
-  return { status: "ready", exercises, order, key: `${mode}:${now.getTime()}` };
+  if (order.length === 0) return { status: "empty", reason: "Não encontrei exercícios disponíveis para estes itens.", stuck };
+  return { status: "ready", exercises, order, key: `${mode}:${now.getTime()}`, stuck };
 }
 
 export function PracticeScreen({ mode, concept }: { mode: PracticeMode; concept: string | null }) {
@@ -95,7 +104,15 @@ export function PracticeScreen({ mode, concept }: { mode: PracticeMode; concept:
     if (!ready) return;
     let alive = true;
     buildPlan(store.state, mode, concept, store.now())
-      .then((p) => alive && setPlan(p))
+      .then((p) => {
+        if (!alive) return;
+        // Modos vencidos sem exercício disponível saem da fila (ver review-builder).
+        if ((p.status === "ready" || p.status === "empty") && p.stuck?.length) {
+          const stuck = p.stuck;
+          store.run((s, now) => unscheduleModes(s, stuck, now));
+        }
+        setPlan(p);
+      })
       .catch(() => alive && setPlan({ status: "error" }));
     return () => {
       alive = false;

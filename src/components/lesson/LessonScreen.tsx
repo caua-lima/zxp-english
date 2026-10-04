@@ -9,11 +9,10 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, BookOpen, CircleCheck, CircleX, Target } from "lucide-react";
 import type { Concept, Lesson, UnitContent } from "@/content/schema";
 import { CURRICULUM, getUnitMeta, lessonIdsOf, unitOfItem } from "@/content/curriculum";
-import { exercisesOf } from "@/content/iter";
-import type { Mode, ProgressState } from "@/engine/model";
+import type { ProgressState } from "@/engine/model";
 import { lessonAccess, recommendedNext } from "@/engine/progression";
+import { reviewModesByConcept } from "@/engine/review-builder";
 import { fromSnapshot, initSession, sessionStats, toSnapshot, type SessionState } from "@/engine/session";
-import { modeOfKind } from "@/engine/srs";
 import { completeLesson, saveLessonSession } from "@/state/actions";
 import { useProgress, useStore } from "@/state/provider";
 import { useSpeaker, type Speaker } from "@/audio/speech";
@@ -25,17 +24,6 @@ import { useUnit } from "@/components/content-hooks";
 import { ContextView } from "./ContextView";
 
 type Stage = "intro" | "run" | "done";
-
-/** Modos de revisão que têm exercício disponível para cada conceito da unidade. */
-function modesByConcept(unit: UnitContent): Map<string, Mode[]> {
-  const map = new Map<string, Set<Mode>>();
-  for (const L of exercisesOf(unit)) {
-    const m = modeOfKind(L.ex.kind);
-    if (!m) continue;
-    for (const c of L.ex.concepts) map.set(c, (map.get(c) ?? new Set<Mode>()).add(m));
-  }
-  return new Map([...map].map(([k, v]) => [k, [...v]]));
-}
 
 export function LessonScreen({ lessonId }: { lessonId: string }) {
   const unitId = unitOfItem(lessonId);
@@ -125,7 +113,7 @@ function LessonFlow({
 
   const finish = (s: SessionState) => {
     const stats = sessionStats(s);
-    const modes = modesByConcept(unit);
+    const modes = reviewModesByConcept(unit);
     store.run((st, now) =>
       completeLesson(
         st,
@@ -370,6 +358,12 @@ function LessonResult({ lesson, unit, index, session }: { lesson: Lesson; unit: 
         </dl>
         {completions > 1 ? (
           <p className="-mt-2 text-center text-sm text-ink-2">Você já tinha concluído esta lição: refazer é ótimo para praticar, mas não gera XP de novo.</p>
+        ) : null}
+        {stats.adapted > 0 ? (
+          <p className="-mt-2 text-center text-sm text-ink-2">
+            {stats.adapted} {stats.adapted === 1 ? "atividade de escuta foi feita" : "atividades de escuta foram feitas"} sem áudio: conta{stats.adapted === 1 ? "" : "m"} como prática, mas
+            não como acerto sem ajuda nem como evidência de compreensão oral.
+          </p>
         ) : null}
         {stats.selfAssessed > 0 ? (
           <p className="-mt-2 text-center text-sm text-ink-2">

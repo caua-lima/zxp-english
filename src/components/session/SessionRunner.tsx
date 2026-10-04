@@ -165,6 +165,7 @@ export function SessionRunner({
         independent: isIndependent({ outcome: p.grade.outcome, hints: p.hints, revealed: p.revealed, adapted: p.adapted, retry }),
         hints: p.hints,
         revealed: p.revealed,
+        ...(p.adapted ? { adapted: true } : {}),
       },
       allowRequeue,
     });

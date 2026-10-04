@@ -216,7 +216,8 @@ export function auditUnits(units: UnitContent[], meta: UnitMeta[]): Issue[] {
   const conceptsByUnit = new Map<string, Set<string>>();
   for (const u of units) conceptsByUnit.set(u.id, new Set(u.concepts.map((c) => c.id)));
 
-  // Uso de cada conceito, para checar cobertura
+  // Uso de cada conceito no conjunto REVISÁVEL: exercícios corrigidos de lições e atividades.
+  // O checkpoint fica de fora: seus itens só entram na revisão depois de uma tentativa.
   const usage = new Map<string, { total: number; production: number }>();
   const bump = (id: string, production: boolean) => {
     const cur = usage.get(id) ?? { total: 0, production: 0 };
@@ -297,7 +298,7 @@ export function auditUnits(units: UnitContent[], meta: UnitMeta[]): Issue[] {
       auditExercise(L, u.id, issues);
       for (const c of L.ex.concepts) {
         if (!known.has(c)) issues.push({ level: "error", unit: u.id, where: L.ex.id, message: `Referência a conceito inexistente (ou de unidade futura): ${c}.` });
-        else bump(c, PRODUCTION_KINDS.includes(L.ex.kind) && GRADED_KINDS.includes(L.ex.kind));
+        else if ((L.group === "lesson" || L.group === "activity") && GRADED_KINDS.includes(L.ex.kind)) bump(c, PRODUCTION_KINDS.includes(L.ex.kind));
       }
     }
 
@@ -360,8 +361,8 @@ export function auditUnits(units: UnitContent[], meta: UnitMeta[]): Issue[] {
   for (const u of units) {
     for (const c of u.concepts) {
       const us = usage.get(c.id) ?? { total: 0, production: 0 };
-      if (us.total < 2) issues.push({ level: "error", unit: u.id, where: c.id, message: `Conceito com menos de 2 exercícios (${us.total}); a revisão precisa de contextos diferentes.` });
-      else if (c.type !== "sound" && us.production < 1) issues.push({ level: "error", unit: u.id, where: c.id, message: "Conceito sem nenhum exercício de produção (digitar/ditado/corrigir)." });
+      if (us.total < 2) issues.push({ level: "error", unit: u.id, where: c.id, message: `Conceito com menos de 2 exercícios revisáveis em lições/atividades (${us.total}); a revisão precisa de contextos diferentes.` });
+      else if (c.type !== "sound" && us.production < 1) issues.push({ level: "error", unit: u.id, where: c.id, message: "Conceito sem exercício de produção (digitar/ditado/corrigir) em lições/atividades." });
     }
   }
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { fromSnapshot, initSession, isRetry, progressOf, sessionReducer, sessionStats, toSnapshot, type ResultSummary, type SessionState } from "@/engine/session";
 import { sessionSnapshotSchema } from "@/engine/model";
-import { buildConceptIndex, buildReviewPicks, errorNotebook, pickExercise, unitsNeeded } from "@/engine/review-builder";
+import { buildConceptIndex, buildReviewPicks, errorNotebook, pickExercise, reviewModesByConcept, unitsNeeded } from "@/engine/review-builder";
 import { buildReviewQueue } from "@/engine/srs";
-import { completeLesson, finishCheckpoint, recordAttempt } from "@/state/actions";
+import { completeLesson, finishCheckpoint, recordAttempt, unscheduleModes } from "@/state/actions";
 import { gradeResponse } from "@/engine/grading";
 import { addDays, dateKey } from "@/engine/dates";
 import unit from "@/content/units/a1-u01";
@@ -117,7 +117,8 @@ function studyLesson(state: ProgressState, lessonIndex: number, when: Date): Pro
       when,
     ).state;
   }
-  return completeLesson(s, { lessonId: lesson.id, concepts: lesson.summary.concepts.map((id) => ({ id, modes: ["rec", "prod"] })), accuracy: 1 }, when).state;
+  const modes = reviewModesByConcept(unit);
+  return completeLesson(s, { lessonId: lesson.id, concepts: lesson.summary.concepts.map((id) => ({ id, modes: modes.get(id) ?? [] })), accuracy: 1 }, when).state;
 }
 
 describe("revisão com passagem simulada de dias", () => {
@@ -166,18 +167,30 @@ describe("revisão com passagem simulada de dias", () => {
     const day1 = at(1);
     const index = buildConceptIndex([unit], s0);
     const due = buildReviewQueue(s0.concepts, dateKey(day1, TZ), 50).today;
-    const picks = buildReviewPicks(due, index, s0.attempts);
+    const { picks, stuck } = buildReviewPicks(due, index, s0.attempts);
     expect(picks.length).toBeGreaterThan(3);
+    expect(stuck).toEqual([]); // tudo o que foi agendado tem exercício para ser revisado
 
-    const target = picks.find((p) => !p.fallback && p.exercise.concepts.length === 1 && p.mode === "prod")!;
-    const exr = target.exercise;
-    const right = exr.kind === "cloze" || exr.kind === "type" || exr.kind === "fix" || exr.kind === "dictation" ? exr.accepted[0] : "";
-    const okState = recordAttempt(s0, { attemptId: "r-ok", exercise: exr, context: "review", ref: "review", grade: gradeResponse(exr, { kind: exr.kind, text: right } as never), hints: 0, revealed: false }, day1).state;
-    const c = okState.concepts[target.conceptId];
-    expect(c.prod.due).toBe(addDays(dateKey(day1, TZ), 3));
+    const typed = (exr: (typeof picks)[number]["exercise"]) =>
+      exr.kind === "cloze" || exr.kind === "type" || exr.kind === "fix" || exr.kind === "dictation" ? exr.accepted[0] : "";
+    const review = (pick: (typeof picks)[number], text: string, id: string) =>
+      recordAttempt(s0, { attemptId: id, exercise: pick.exercise, context: "review", ref: "review", grade: gradeResponse(pick.exercise, { kind: pick.exercise.kind, text } as never), hints: 0, revealed: false }, day1).state;
+    const single = picks.filter((p) => p.exercise.concepts.length === 1 && p.mode === "prod");
 
-    const badState = recordAttempt(s0, { attemptId: "r-bad", exercise: exr, context: "review", ref: "review", grade: gradeResponse(exr, { kind: exr.kind, text: "zzz" } as never), hints: 0, revealed: false }, day1).state;
-    expect(badState.concepts[target.conceptId].prod.due).toBe(addDays(dateKey(day1, TZ), 1));
+    // Já produzido com acerto na lição (nível 1): acertar de novo no vencimento leva a 3 dias.
+    const practiced = single.find((p) => s0.concepts[p.conceptId].prod.level === 1)!;
+    expect(practiced).toBeTruthy();
+    expect(review(practiced, typed(practiced.exercise), "r-ok").concepts[practiced.conceptId].prod.due).toBe(addDays(dateKey(day1, TZ), 3));
+    // Errar traz para amanhã, seja qual for o nível.
+    expect(review(practiced, "zzz", "r-bad").concepts[practiced.conceptId].prod.due).toBe(addDays(dateKey(day1, TZ), 1));
+
+    // Só agendado, nunca produzido (nível 0): o primeiro acerto leva a 1 dia, não pula etapas.
+    const seeded = single.find((p) => s0.concepts[p.conceptId].prod.level === 0);
+    if (seeded) {
+      const after = review(seeded, typed(seeded.exercise), "r-seed").concepts[seeded.conceptId].prod;
+      expect(after.level).toBe(1);
+      expect(after.due).toBe(addDays(dateKey(day1, TZ), 1));
+    }
   });
 
   it("as pendências não revisadas se acumulam em vez de sumir", () => {
@@ -186,6 +199,38 @@ describe("revisão com passagem simulada de dias", () => {
     expect(q.today).toHaveLength(5);
     expect(q.deferred).toBe(q.totalDue - 5);
     expect(q.today[0].overdueDays).toBe(9);
+  });
+
+  it("só agenda modos que a revisão consegue atender (o checkpoint não conta)", () => {
+    const modes = reviewModesByConcept(unit);
+    for (const c of unit.concepts) {
+      const m = modes.get(c.id) ?? [];
+      expect(m.length, c.id).toBeGreaterThan(0);
+      if (c.type !== "sound") expect(m, c.id).toContain("prod"); // todo conceito tem como ser produzido numa revisão
+    }
+    // Cada modo agendado tem pelo menos um exercício fora do checkpoint.
+    const index = buildConceptIndex([unit], fresh());
+    for (const [id, list] of modes) {
+      for (const mode of list) expect(pickExercise(id, mode, index, [])?.fallback, `${id}/${mode}`).toBe(false);
+    }
+  });
+
+  it("um modo vencido sem exercício é informado como preso e pode ser desagendado sem apagar histórico", () => {
+    // Força a situação: "hi-hello" só tem exercícios de produção fora do checkpoint.
+    const forced = completeLesson(s0, { lessonId: "a1-u01-l1", concepts: [{ id: "a1-u01:hi-hello", modes: ["rec", "prod"] }], accuracy: 1 }, T0).state;
+    const day1 = dateKey(at(1), TZ);
+    const due = buildReviewQueue(forced.concepts, day1, 50).today;
+    const { stuck, picks } = buildReviewPicks(due, buildConceptIndex([unit], forced), forced.attempts);
+    expect(stuck).toEqual([{ conceptId: "a1-u01:hi-hello", mode: "rec" }]);
+    expect(picks.some((p) => p.fallback)).toBe(false);
+
+    const before = forced.concepts["a1-u01:hi-hello"];
+    const fixed = unscheduleModes(forced, stuck, at(1)).state;
+    expect(fixed.concepts["a1-u01:hi-hello"].rec.due).toBeNull();
+    expect(fixed.concepts["a1-u01:hi-hello"].prod).toEqual(before.prod);
+    expect(fixed.concepts["a1-u01:hi-hello"].history).toEqual(before.history);
+    // E a fila do dia deixa de trazê-lo para sempre.
+    expect(buildReviewQueue(fixed.concepts, day1, 50).today.some((i) => i.conceptId === "a1-u01:hi-hello" && i.mode === "rec")).toBe(false);
   });
 
   it("unitsNeeded diz quais unidades carregar", () => {

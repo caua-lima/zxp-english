@@ -10,10 +10,11 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "next build && playwright test",
     "content:audit": "tsx scripts/audit-content.ts",
     "verify": "npm run typecheck && npm run lint && npm test && npm run content:audit && npm run build",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "test:e2e:only": "playwright test"
   },
   "dependencies": {
     "lucide-react": "^1.51.0",

@@ -34,6 +34,25 @@ export function buildConceptIndex(units: UnitContent[], state: ProgressState): C
   return index;
 }
 
+/** Grupos de exercício que a revisão pode usar sem depender do checkpoint. */
+const isReviewable = (L: Located) => L.group === "lesson" || L.group === "activity";
+
+/**
+ * Para cada conceito, os modos (reconhecer/produzir) que têm exercício nas lições e
+ * atividades da unidade. Só esses são agendados ao concluir uma lição: agendar um modo
+ * que a revisão não consegue atender criaria uma pendência impossível de cumprir.
+ */
+export function reviewModesByConcept(unit: UnitContent): Map<string, Mode[]> {
+  const map = new Map<string, Set<Mode>>();
+  for (const L of exercisesOf(unit)) {
+    if (!isReviewable(L)) continue;
+    const m = modeOfKind(L.ex.kind);
+    if (!m) continue;
+    for (const c of L.ex.concepts) map.set(c, (map.get(c) ?? new Set<Mode>()).add(m));
+  }
+  return new Map([...map].map(([k, v]) => [k, [...v]]));
+}
+
 function lastAttemptTimes(attempts: Attempt[]): Map<string, string> {
   const m = new Map<string, string>();
   for (const a of attempts) m.set(a.exerciseId, a.ts); // attempts já vêm em ordem cronológica
@@ -79,20 +98,32 @@ export function unitsNeeded(items: { conceptId: string }[]): string[] {
   return [...new Set(items.map((i) => unitOfConcept(i.conceptId)))];
 }
 
-export function buildReviewPicks(
-  due: DueItem[],
-  index: ConceptIndex,
-  attempts: Attempt[],
-): ReviewPick[] {
+export interface ReviewPlan {
+  picks: ReviewPick[];
+  /**
+   * Itens vencidos cujo modo não tem exercício disponível (conteúdo mudou, por exemplo).
+   * Quem chama deve desagendá-los: senão ficariam vencidos para sempre.
+   */
+  stuck: { conceptId: string; mode: Mode }[];
+}
+
+export function buildReviewPicks(due: DueItem[], index: ConceptIndex, attempts: Attempt[]): ReviewPlan {
   const used = new Set<string>();
   const picks: ReviewPick[] = [];
+  const stuck: ReviewPlan["stuck"] = [];
   for (const d of due) {
     const pick = pickExercise(d.conceptId, d.mode, index, attempts, used);
-    if (!pick) continue;
-    used.add(pick.exercise.id);
-    picks.push(pick);
+    if (!pick || pick.fallback) {
+      stuck.push({ conceptId: d.conceptId, mode: d.mode });
+      continue;
+    }
+    // O mesmo exercício pode servir a dois conceitos vencidos; ele entra uma vez só.
+    if (!used.has(pick.exercise.id)) {
+      used.add(pick.exercise.id);
+      picks.push(pick);
+    }
   }
-  return picks;
+  return { picks, stuck };
 }
 
 // ---------------------------------------------------------------- caderno de erros
