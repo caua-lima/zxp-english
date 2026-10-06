@@ -9,3 +9,4 @@
 - Progresso no curso não é prova de proficiência CEFR.
 - Testado em Chromium (celular emulado); outros navegadores e leitores de tela reais não foram testados.
 - Cinco avisos "high" do `npm audit` na cadeia de dev do ESLint (não afetam o site publicado).
+- **Uso offline parcial**: o service worker guarda só o que você já abriu; uma unidade nunca visitada exige internet na primeira vez. O progresso, em si, é sempre local.

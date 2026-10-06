@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { ProgressProvider } from "@/state/provider";
+import { ServiceWorker } from "@/components/shell/ServiceWorker";
 
 const display = Sora({
   subsets: ["latin"],
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-full">
+        <ServiceWorker />
         <ProgressProvider>{children}</ProgressProvider>
       </body>
     </html>

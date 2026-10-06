@@ -1,6 +1,6 @@
 # ZXP ENGLISH
 
-Aplicativo web pessoal para aprender inglês do A1 ao B2, com interface e explicações em português (cada vez mais inglês ao longo da trilha). Funciona offline-first no navegador: **sem login, sem pagamento, sem chave de IA, sem servidor de dados**. O progresso fica no seu aparelho (IndexedDB) e pode ser exportado em JSON.
+Aplicativo web pessoal para aprender inglês do A1 ao B2, com interface e explicações em português (cada vez mais inglês ao longo da trilha). Os dados ficam no navegador: **sem login, sem pagamento, sem chave de IA, sem servidor de dados**. O progresso fica no seu aparelho (IndexedDB) e pode ser exportado em JSON.
 
 ## O que tem
 
@@ -9,6 +9,7 @@ Aplicativo web pessoal para aprender inglês do A1 ao B2, com interface e explic
 - Correção cuidadosa (não aceita negação, tempo ou apóstrofo essencial errados) e respostas abertas **autoavaliadas**, sem nota falsa.
 - Revisão espaçada (1, 3, 7, 14 e 30 dias), caderno de erros, plano do dia, XP, metas, sequência, conquistas e revisão semanal.
 - Áudio pela voz do navegador (normal e lenta) e gravação opcional; o microfone só é pedido sob demanda.
+- Funciona sem internet depois da primeira visita (service worker): as telas e as unidades que você já abriu ficam em cache. Uma unidade nunca aberta precisa de conexão uma vez.
 - Backup/restauração em JSON com validação e migração de versão.
 - Diagnóstico opcional que **não** declara nível CEFR.
 

@@ -12,3 +12,4 @@ Observações:
 - O progresso é local ao navegador de cada pessoa: o deploy não guarda dados de ninguém.
 - O áudio usa a voz sintética do navegador e funciona melhor no Chrome/Edge/Safari atuais.
 - Se a Vercel alertar sobre versão do Node, use 20 ou 22.
+- O arquivo `public/sw.js` (service worker) é servido pela Vercel com revalidação; para invalidar caches antigos depois de uma mudança grande, aumente `CACHE` em `sw.js`.
