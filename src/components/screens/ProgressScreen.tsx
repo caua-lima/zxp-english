@@ -233,7 +233,7 @@ export function ProgressScreen() {
           </li>
         ))}
         {lockedAch.map((a) => (
-          <li key={a.id} className="card flex items-start gap-3 p-3.5 opacity-70">
+          <li key={a.id} className="card flex items-start gap-3 border-dashed p-3.5">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-line bg-surface-2 text-ink-3">
               <Lock size={18} aria-hidden="true" />
             </span>
