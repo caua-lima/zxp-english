@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { completeLesson, fakeSpeech, onboard, startLesson } from "./helpers";
+import { answer, completeLesson, fakeSpeech, next, onboard, startLesson } from "./helpers";
 
 /**
  * Varredura automática de acessibilidade (axe-core, regras WCAG 2.x A/AA) nas telas
@@ -44,5 +44,21 @@ for (const theme of ["Escuro", "Claro"] as const) {
     await page.getByRole("group", { name: "Tema" }).getByRole("button", { name: theme }).click();
     await startLesson(page, "a1-u01-l1");
     await scan(page, `lição (${theme})`);
+  });
+}
+
+for (const theme of ["Escuro", "Claro"] as const) {
+  test(`feedback de erro e de acerto sem violações do axe — tema ${theme.toLowerCase()}`, async ({ page }) => {
+    await onboard(page);
+    await page.goto("/ajustes");
+    await page.getByRole("group", { name: "Tema" }).getByRole("button", { name: theme }).click();
+    await startLesson(page, "a1-u01-l1");
+    await answer(page, "wrong");
+    await page.waitForTimeout(700); // espera as transições terminarem
+    await scan(page, `feedback de erro (${theme})`);
+    await next(page);
+    await answer(page, "right");
+    await page.waitForTimeout(700);
+    await scan(page, `feedback de acerto (${theme})`);
   });
 }
