@@ -22,7 +22,7 @@
 
 ## Verificação (última execução)
 
-- `npm run typecheck` ✅ · `npm run lint` ✅ (1 aviso) · `npm test` ✅ 238 testes · `npm run content:audit` ✅ 0 erros, 9 avisos de estilo · `npm run test:e2e` ✅ 37 testes (build de produção incluído).
+- `npm run typecheck` ✅ · `npm run lint` ✅ · `npm test` ✅ 244 testes · `npm run content:audit` ✅ 0 erros, 7 avisos · `npm run test:e2e` ✅ 44 testes · percurso completo (`ZXP_FULL=1`) ✅ 32/32 unidades.
 
 ## Pendências reais
 
