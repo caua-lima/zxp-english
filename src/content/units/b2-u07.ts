@@ -188,6 +188,16 @@ export default defineUnit({
       application: [
         write("e9", "Summarize in 3 sentences (about 40 words): 'Cities with more parks report lower stress. The author, a park designer, says every city needs ten more parks. He does not mention costs.' Include thesis, support and a limit.",
           { mode: "summary", min: 30, check: ["Comecei com The article/author argues that.", "Incluí o apoio.", "Apontei um limite com However ou but.", "Não copiei as frases originais."], model: "The article argues that cities need more parks because residents report lower stress. The author is a park designer, so the argument may be biased. However, he does not mention the costs, which weakens the case.", c: ["summary-structure", "bias"] }),
+        dialog("e9b", "A colleague shares an article and asks what you think.", [
+          { npc: ["This article says remote work is always better. Convincing, right?", "Este artigo diz que o trabalho remoto é sempre melhor. Convincente, né?"], options: [
+            ["It argues that, but the evidence seems limited: it only surveyed one company.", true, "Seu colega percebe o limite.", "Resume a tese e avalia a evidência."],
+            ["Yes, it is always better. Everyone knows that.", false, "Seu colega concorda sem pensar.", "Aceitou a afirmação sem avaliar a evidência."],
+          ] },
+          { npc: ["Hmm. What is missing, then?", "Hmm. O que está faltando, então?"], options: [
+            ["What is missing is data from other industries, and the other side of the argument.", true, "Ele decide procurar outra fonte.", "Aponta o que falta."],
+            ["Nothing. It's a good article.", false, "A conversa termina sem análise.", "Faltou o olhar crítico."],
+          ] },
+        ], "Avaliar um artigo em conversa: tese, evidência e o que falta.", { c: ["summary-structure", "critical-question"] }),
         speak("e10", "Evaluate an article or video you saw recently in 4 sentences: thesis, support, strength, and one thing that is missing.", ["The video argues that people should sleep eight hours. It supports this by citing a study. The evidence seems convincing. However, it does not mention people who work at night."],
           { mode: "respond", check: ["Resumi a tese.", "Citei o apoio.", "Avaliei a força da evidência.", "Apontei o que está faltando."], c: ["summary-structure", "critical-question"] }),
       ],

@@ -58,6 +58,16 @@ export default defineUnit({
       ],
       application: [
         fix("e8", "This is the my son.", ["This is my son"], "Não se usa the junto com my.", { c: ["this-is"], prompt: "Corrija o erro." }),
+        dialog("e8b", "Um colega pergunta sobre a foto da sua família.", [
+          { npc: ["Who is this?", "Quem é este?"], options: [
+            ["This is my brother. He is twenty.", true, "Seu colega sorri.", "This is my + parentesco."],
+            ["This is the my brother.", false, "Seu colega entende, mas soa errado.", "Não se usa the junto com my."],
+          ] },
+          { npc: ["And these people?", "E estas pessoas?"], options: [
+            ["These are my parents.", true, "Ele comenta que eles parecem simpáticos.", "Parents = pai e mãe; no plural, These are."],
+            ["This is my parents.", false, "Soa estranho.", "Com mais de uma pessoa: These are."],
+          ] },
+        ], "Apresentar a família em uma conversa curta.", { c: ["this-is", "parents"] }),
         speak("e9", "Apresente três pessoas da sua família em voz alta.", ["This is my mother. This is my father. This is my sister."],
           { check: ["Usei This is my para cada pessoa.", "Pronunciei o TH de mother e father com a língua nos dentes.", "Repeti pelo menos duas vezes."], c: ["this-is"] }),
       ],
